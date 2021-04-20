@@ -1,3 +1,4 @@
+
 function varargout = AirlineSystem(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -144,41 +145,54 @@ end
 
 function ProducePlan_Callback(hObject, eventdata, handles)
 clc;
+f = waitbar(0,'正在初始化');
+pause(0.5)
+waitbar(0.06,f,'正在加载雷达1位置坐标');
+pause(0.1)
 radar1x=get(handles.radar1x,'String');
-radar1x=str2num(radar1x);
+radar1x=str2double(radar1x);
 radar1y=get(handles.radar1y,'String');
-radar1y=str2num(radar1y);
+radar1y=str2double(radar1y);
 radar1z=get(handles.radar1z,'String');
-radar1z=str2num(radar1z);
+radar1z=str2double(radar1z);
+waitbar(0.12,f,'正在加载雷达2位置坐标');
+pause(0.1)
 radar2x=get(handles.radar2x,'String');
-radar2x=str2num(radar2x);
+radar2x=str2double(radar2x);
 radar2y=get(handles.radar2y,'String');
-radar2y=str2num(radar2y);
+radar2y=str2double(radar2y);
 radar2z=get(handles.radar2z,'String');
-radar2z=str2num(radar2z);
+radar2z=str2double(radar2z);
+waitbar(0.18,f,'正在加载雷达3位置坐标');
+pause(0.1)
 radar3x=get(handles.radar3x,'String');
-radar3x=str2num(radar3x);
+radar3x=str2double(radar3x);
 radar3y=get(handles.radar3y,'String');
-radar3y=str2num(radar3y);
+radar3y=str2double(radar3y);
 radar3z=get(handles.radar3z,'String');
-radar3z=str2num(radar3z);
+radar3z=str2double(radar3z);
+waitbar(0.24,f,'正在加载雷达4位置坐标');
+pause(0.1)
 radar4x=get(handles.radar4x,'String');
-radar4x=str2num(radar4x);
+radar4x=str2double(radar4x);
 radar4y=get(handles.radar4y,'String');
-radar4y=str2num(radar4y);
+radar4y=str2double(radar4y);
 radar4z=get(handles.radar4z,'String');
-radar4z=str2num(radar4z);
+radar4z=str2double(radar4z);
+waitbar(0.3,f,'正在加载雷达5位置坐标');
+pause(0.1)
 radar5x=get(handles.radar5x,'String');
-radar5x=str2num(radar5x);
+radar5x=str2double(radar5x);
 radar5y=get(handles.radar5y,'String');
-radar5y=str2num(radar5y);
+radar5y=str2double(radar5y);
 radar5z=get(handles.radar5z,'String');
-radar5z=str2num(radar5z);
+radar5z=str2double(radar5z);
 q=[radar1x radar1y radar1z;
    radar2x radar2y radar2z;
    radar3x radar3y radar3z;
    radar4x radar4y radar4z;
    radar5x radar5y radar5z];%雷达坐标
+waitbar(0.33,f,'雷达坐标加载完成');
 A=[1,60600,69982,7995;
    2,61197,69928,7980;
    3,61790,69838,7955;
@@ -201,6 +215,8 @@ A=[1,60600,69982,7995;
    20,69184,63957,6000];%虚假目标航迹
 C=[];                   %最终方案
 B=[];                   %所有可行的取点
+waitbar(0.4,f,'正在计算无人机应经过的位置');
+pause(0.5);
 for j=1:5
     for i=1:20
         for z=1:10:A(i,4)
@@ -209,11 +225,30 @@ for j=1:5
             B=[B;x,y,z];
         end
     end
+    if(j==1)
+        waitbar(0.44,f,'1号无人机途径坐标已确定');
+    else if(j==2)
+            waitbar(0.48,f,'2号无人机途径坐标已确定');
+        else if(j==3)
+                waitbar(0.52,f,'3号无人机途径坐标已确定');
+            else if(j==4)
+                    waitbar(0.56,f,'4号无人机途径坐标已确定');
+                else if(j==5)
+                        waitbar(0.6,f,'5号无人机途径坐标已确定');
+                        pause(0.5);
+                    end
+                end
+            end
+        end
+    end
 end
-disp('B is formed successfully');
+waitbar(0.7,f,'无人机应经过的位置计算完成');
+pause(0.5);
 num_B=size(B);num_B=num_B(1,1);
 sign=0;
 a=[];
+waitbar(0.8,f,'正在规划无人机编队航迹');
+pause(2);
 for i=1:num_B
     if(sign==0)
         if(B(i,3)==2501)
@@ -274,7 +309,8 @@ while i<num_B
         end
     end
 end
-disp('C is formed successfully');
+waitbar(1,f,'航迹规划完成');
+pause(0.5);
 C1=C(1:20,:);C2=C(21:40,:);C3=C(41:60,:);C4=C(61:80,:);C5=C(81:100,:);
 fid=fopen('AirlineSystem.txt','w');
 fprintf(fid,'%33s\r\n','Airplane1');
@@ -293,3 +329,5 @@ fprintf(fid,'%33s\r\n','Airplane5');
 fprintf(fid,'%5s          %5s          %5s          %5s\r\n','x','y','z','v');
 fprintf(fid,'%10.4f    %10.4f    %10.4f    %10.4f\r\n',C5');
 fclose(fid);
+close(f)
+msgbox('航迹规划完成','Success','help');
